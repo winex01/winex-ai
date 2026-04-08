@@ -14,6 +14,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Filament\Http\Middleware\AuthenticateSession;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use EslamRedaDiv\FilamentCopilot\FilamentCopilotPlugin;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -30,6 +31,29 @@ class AppPanelProvider extends PanelProvider
             ->viteTheme('resources/css/filament/app/theme.css')
             ->login()
             ->registration()
+            ->plugin(
+                FilamentCopilotPlugin::make()
+                    // ->provider('ollama')
+                    // ->model('phi3:latest')
+                    ->systemPrompt('You are a helpful admin assistant.')
+                    ->globalTools([
+                        // SearchEverythingTool::class,
+                    ])
+                    ->quickActions([
+                        'Show stats'   => 'Show me a summary of today\'s statistics.',
+                        'Recent users' => 'List the 10 most recently created users.',
+                    ])
+                    ->managementEnabled()
+                    // ->managementGuard('admin')
+                    ->rateLimitEnabled()
+                    ->tokenBudgetEnabled()
+                    ->dailyTokenBudget(50000)
+                    ->monthlyTokenBudget(1000000)
+                    ->memoryEnabled()
+                    ->maxMemoriesPerUser(200)
+                    ->respectAuthorization()
+                    ->authorizeUsing(fn ($user) => true)
+            )
             ->colors([
                 'primary' => Color::Sky,
             ])
